@@ -1,6 +1,5 @@
 use super::*;
 use std::time::Duration;
-use tokio;
 
 const HTML_CONTENT: &str = r#"
 <!doctype html>
@@ -15,12 +14,16 @@ const DOCX_CONTENT: &[u8] = include_bytes!("../test_files/example.docx");
 const PASSWORD_PROTECTED_ODT_CONTENT: &[u8] =
     include_bytes!("../test_files/example_password_protected.odt");
 
+const BASE_URL: &str = "http://localhost:3000";
+
 #[tokio::test]
 async fn test_url_to_pdf() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    options.skip_network_idle_events = Some(false);
+    let options = WebOptions {
+        skip_network_idle_events: Some(false),
+        ..Default::default()
+    };
 
     // Call the API and handle the result
     match client.pdf_from_url("https://example.com", options).await {
@@ -43,169 +46,200 @@ async fn test_url_to_pdf() {
 
 #[tokio::test]
 async fn test_web_options_trace_id() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    options.trace_id = Some("test-trace-id".to_string());
+    let options = WebOptions {
+        trace_id: Some("test-trace-id".to_string()),
+        ..Default::default()
+    };
 
     let _pdf_bytes = client.pdf_from_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_web_options_single_page() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    options.single_page = Some(true);
+    let options = WebOptions {
+        single_page: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_bytes = client.pdf_from_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_web_options_paper_size() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    options.paper_width = Some("210mm".parse().unwrap());
-    options.paper_height = Some("297mm".parse().unwrap());
+    let options = WebOptions {
+        paper_width: Some("210mm".parse().unwrap()),
+        paper_height: Some("297mm".parse().unwrap()),
+        ..Default::default()
+    };
 
     let _pdf_bytes = client.pdf_from_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_web_options_margins() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    options.margin_top = Some("1in".parse().unwrap());
-    options.margin_bottom = Some("1in".parse().unwrap());
-    options.margin_left = Some("0.5in".parse().unwrap());
-    options.margin_right = Some("0.5in".parse().unwrap());
+    let options = WebOptions {
+        margin_top: Some("1in".parse().unwrap()),
+        margin_bottom: Some("1in".parse().unwrap()),
+        margin_left: Some("0.5in".parse().unwrap()),
+        margin_right: Some("0.5in".parse().unwrap()),
+        ..Default::default()
+    };
 
     let _pdf_bytes = client.pdf_from_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_web_options_prefer_css_page_size() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    options.prefer_css_page_size = Some(true);
+    let options = WebOptions {
+        prefer_css_page_size: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_bytes = client.pdf_from_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_web_options_print_background() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    options.print_background = Some(true);
+    let options = WebOptions {
+        print_background: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_bytes = client.pdf_from_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_web_options_landscape() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    options.landscape = Some(true);
+    let options = WebOptions {
+        landscape: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_bytes = client.pdf_from_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_web_options_scale() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    options.scale = Some(1.5);
+    let options = WebOptions {
+        scale: Some(1.5),
+        ..Default::default()
+    };
 
     let _pdf_bytes = client.pdf_from_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_web_options_page_ranges() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    options.native_page_ranges = Some("1-3,5".parse().unwrap());
+    let options = WebOptions {
+        native_page_ranges: Some("1-3,5".parse().unwrap()),
+        ..Default::default()
+    };
 
     let _pdf_bytes = client.pdf_from_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_web_options_header_footer() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    options.header_html = Some("<h1>Header Test: <div class='title'></div></h1>".into());
-    options.footer_html = Some("Page Number: <div class='pageNumber'></div>".into());
+    let options = WebOptions {
+        header_html: Some("<h1>Header Test: <div class='title'></div></h1>".into()),
+        footer_html: Some("Page Number: <div class='pageNumber'></div>".into()),
+        ..Default::default()
+    };
 
     let _pdf_bytes = client.pdf_from_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_web_options_wait_delay() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    options.wait_delay = Some(Duration::from_secs(1));
+    let options = WebOptions {
+        wait_delay: Some(Duration::from_secs(1)),
+        ..Default::default()
+    };
 
     let _pdf_bytes = client.pdf_from_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_web_options_emulated_media_type() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    options.emulated_media_type = Some("screen".parse().unwrap());
+    let options = WebOptions {
+        emulated_media_type: Some("screen".parse().unwrap()),
+        ..Default::default()
+    };
 
     let _pdf_bytes = client.pdf_from_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_web_options_fail_on_http_status_codes() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    options.fail_on_http_status_codes = Some(vec![404, 500]);
+    let options = WebOptions {
+        fail_on_http_status_codes: Some(vec![404, 500]),
+        ..Default::default()
+    };
 
     let _pdf_bytes = client.pdf_from_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_web_options_metadata() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    options.metadata = Some(HashMap::from([
-        ("Title".to_string(), "Test Document".into()),
-        ("Author".to_string(), "Test Author".into()),
-    ]));
+    let options = WebOptions {
+        metadata: Some(HashMap::from([
+            ("Title".to_string(), "Test Document".into()),
+            ("Author".to_string(), "Test Author".into()),
+        ])),
+        ..Default::default()
+    };
 
     let _pdf_bytes = client.pdf_from_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_web_options_user_agent() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    options.user_agent = Some("TestUserAgent/1.0".into());
+    let options = WebOptions {
+        user_agent: Some("TestUserAgent/1.0".into()),
+        ..Default::default()
+    };
 
     let _pdf_bytes = client.pdf_from_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_web_options_negative_scale() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    // Negative scale should fail
-    options.scale = Some(-1.0);
+    let options = WebOptions {
+        scale: Some(-1.0),
+        ..Default::default()
+    };
 
     let result = client.pdf_from_html(HTML_CONTENT, options).await;
     assert!(result.is_err(), "Expected negative scale to fail");
@@ -213,11 +247,12 @@ async fn test_web_options_negative_scale() {
 
 #[tokio::test]
 async fn test_web_options_unsupported_user_agent() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = WebOptions::default();
-    // Unsupported user agent format
-    options.user_agent = Some("\0invalid_user_agent".into());
+    let options = WebOptions {
+        user_agent: Some("\0invalid_user_agent".into()),
+        ..Default::default()
+    };
 
     let result = client.pdf_from_html(HTML_CONTENT, options).await;
     assert!(result.is_err(), "Expected unsupported user agent to fail");
@@ -225,82 +260,108 @@ async fn test_web_options_unsupported_user_agent() {
 
 #[tokio::test]
 async fn test_screenshot_options_trace_id() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
 
-    let mut options = ScreenshotOptions::default();
-    options.trace_id = Some("test-trace-id".to_string());
+    let options = ScreenshotOptions {
+        trace_id: Some("test-trace-id".to_string()),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_screenshot_options_width() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.width = Some(1024);
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        width: Some(1024),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_screenshot_options_height() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.height = Some(768);
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        height: Some(768),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_screenshot_options_clip() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.clip = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        clip: Some(true),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_screenshot_options_format() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.format = Some(ImageFormat::Jpeg);
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        format: Some(ImageFormat::Jpeg),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_screenshot_options_quality() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.quality = Some(85);
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        quality: Some(85),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_screenshot_options_omit_background() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.omit_background = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        omit_background: Some(true),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_screenshot_options_optimize_for_speed() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.optimize_for_speed = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        optimize_for_speed: Some(true),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_screenshot_options_wait_delay() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.wait_delay = Some(Duration::from_secs(1));
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        wait_delay: Some(Duration::from_secs(1)),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
@@ -322,122 +383,159 @@ async fn test_screenshot_options_wait_for_expression() {
     </html>
     "#;
 
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.wait_for_expression = Some("window.isReady === true".to_string());
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        wait_for_expression: Some("window.isReady === true".to_string()),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(html_content, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_screenshot_options_emulated_media_type() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.emulated_media_type = Some(MediaType::Screen);
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        emulated_media_type: Some(MediaType::Screen),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_screenshot_options_cookies() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.cookies = Some(vec![Cookie {
-        name: "session".to_string(),
-        value: "abc123".to_string(),
-        domain: "example.com".to_string(),
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        cookies: Some(vec![Cookie {
+            name: "session".to_string(),
+            value: "abc123".to_string(),
+            domain: "example.com".to_string(),
+            ..Default::default()
+        }]),
         ..Default::default()
-    }]);
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_screenshot_options_skip_network_idle_events() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.skip_network_idle_events = Some(false);
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        skip_network_idle_events: Some(false),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_screenshot_options_user_agent() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.user_agent = Some("Test-Agent".to_string());
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        user_agent: Some("Test-Agent".to_string()),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_screenshot_options_extra_http_headers() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.extra_http_headers = Some(
-        vec![
-            ("Authorization".to_string(), "Bearer token".to_string()),
-            ("X-Custom-Header".to_string(), "custom-value".to_string()),
-        ]
-        .into_iter()
-        .collect(),
-    );
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        extra_http_headers: Some(
+            vec![
+                ("Authorization".to_string(), "Bearer token".to_string()),
+                ("X-Custom-Header".to_string(), "custom-value".to_string()),
+            ]
+            .into_iter()
+            .collect(),
+        ),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_screenshot_options_fail_on_http_status_codes() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.fail_on_http_status_codes = Some(vec![404, 500]);
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        fail_on_http_status_codes: Some(vec![404, 500]),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_screenshot_options_fail_on_resource_http_status_codes() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.fail_on_resource_http_status_codes = Some(vec![403, 502]);
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        fail_on_resource_http_status_codes: Some(vec![403, 502]),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_screenshot_options_fail_on_resource_loading_failed() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.fail_on_resource_loading_failed = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        fail_on_resource_loading_failed: Some(true),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_screenshot_options_fail_on_console_exceptions() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = ScreenshotOptions::default();
-    options.fail_on_console_exceptions = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = ScreenshotOptions {
+        fail_on_console_exceptions: Some(true),
+        ..Default::default()
+    };
 
     let _image_bytes = client.screenshot_html(HTML_CONTENT, options).await.unwrap();
 }
 
 #[tokio::test]
 async fn test_doc_options_trace_id() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.trace_id = Some("some-trace-id".to_string());
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        trace_id: Some("some-trace-id".to_string()),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
         .await
         .unwrap();
 }
+
 #[tokio::test]
 async fn test_doc_options_password() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.password = Some("secure-password".to_string());
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        password: Some("secure-password".to_string()),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc(
@@ -451,9 +549,12 @@ async fn test_doc_options_password() {
 
 #[tokio::test]
 async fn test_doc_options_landscape() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.landscape = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        landscape: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -463,9 +564,12 @@ async fn test_doc_options_landscape() {
 
 #[tokio::test]
 async fn test_doc_options_export_form_fields() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.export_form_fields = Some(false);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        export_form_fields: Some(false),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -475,9 +579,12 @@ async fn test_doc_options_export_form_fields() {
 
 #[tokio::test]
 async fn test_doc_options_allow_duplicate_field_names() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.allow_duplicate_field_names = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        allow_duplicate_field_names: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -487,9 +594,12 @@ async fn test_doc_options_allow_duplicate_field_names() {
 
 #[tokio::test]
 async fn test_doc_options_export_bookmarks() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.export_bookmarks = Some(false);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        export_bookmarks: Some(false),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -499,9 +609,12 @@ async fn test_doc_options_export_bookmarks() {
 
 #[tokio::test]
 async fn test_doc_options_export_notes() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.export_notes = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        export_notes: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -511,9 +624,12 @@ async fn test_doc_options_export_notes() {
 
 #[tokio::test]
 async fn test_doc_options_quality() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.quality = Some(75);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        quality: Some(75),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -523,9 +639,12 @@ async fn test_doc_options_quality() {
 
 #[tokio::test]
 async fn test_doc_options_max_image_resolution() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.max_image_resolution = Some(600);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        max_image_resolution: Some(600),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -535,9 +654,12 @@ async fn test_doc_options_max_image_resolution() {
 
 #[tokio::test]
 async fn test_doc_options_pdfua() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.pdfua = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        pdfua: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -547,9 +669,12 @@ async fn test_doc_options_pdfua() {
 
 #[tokio::test]
 async fn test_doc_options_native_page_ranges() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.native_page_ranges = Some("1-3,5".parse().unwrap());
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        native_page_ranges: Some("1-3,5".parse().unwrap()),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -559,9 +684,12 @@ async fn test_doc_options_native_page_ranges() {
 
 #[tokio::test]
 async fn test_doc_options_export_bookmarks_to_pdf_destination() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.export_bookmarks_to_pdf_destination = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        export_bookmarks_to_pdf_destination: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -571,9 +699,12 @@ async fn test_doc_options_export_bookmarks_to_pdf_destination() {
 
 #[tokio::test]
 async fn test_doc_options_export_placeholders() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.export_placeholders = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        export_placeholders: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -583,9 +714,12 @@ async fn test_doc_options_export_placeholders() {
 
 #[tokio::test]
 async fn test_doc_options_export_notes_pages() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.export_notes_pages = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        export_notes_pages: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -595,9 +729,12 @@ async fn test_doc_options_export_notes_pages() {
 
 #[tokio::test]
 async fn test_doc_options_export_only_notes_pages() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.export_only_notes_pages = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        export_only_notes_pages: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -607,9 +744,12 @@ async fn test_doc_options_export_only_notes_pages() {
 
 #[tokio::test]
 async fn test_doc_options_export_notes_in_margin() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.export_notes_in_margin = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        export_notes_in_margin: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -619,9 +759,12 @@ async fn test_doc_options_export_notes_in_margin() {
 
 #[tokio::test]
 async fn test_doc_options_convert_ooo_target_to_pdf_target() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.convert_ooo_target_to_pdf_target = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        convert_ooo_target_to_pdf_target: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -631,9 +774,12 @@ async fn test_doc_options_convert_ooo_target_to_pdf_target() {
 
 #[tokio::test]
 async fn test_doc_options_export_links_relative_fsys() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.export_links_relative_fsys = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        export_links_relative_fsys: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -643,9 +789,12 @@ async fn test_doc_options_export_links_relative_fsys() {
 
 #[tokio::test]
 async fn test_doc_options_export_hidden_slides() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.export_hidden_slides = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        export_hidden_slides: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -655,9 +804,12 @@ async fn test_doc_options_export_hidden_slides() {
 
 #[tokio::test]
 async fn test_doc_options_skip_empty_pages() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.skip_empty_pages = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        skip_empty_pages: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -667,9 +819,12 @@ async fn test_doc_options_skip_empty_pages() {
 
 #[tokio::test]
 async fn test_doc_options_add_original_document_as_stream() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.add_original_document_as_stream = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        add_original_document_as_stream: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -679,9 +834,12 @@ async fn test_doc_options_add_original_document_as_stream() {
 
 #[tokio::test]
 async fn test_doc_options_single_page_sheets() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.single_page_sheets = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        single_page_sheets: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -691,9 +849,12 @@ async fn test_doc_options_single_page_sheets() {
 
 #[tokio::test]
 async fn test_doc_options_lossless_image_compression() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.lossless_image_compression = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        lossless_image_compression: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -703,9 +864,12 @@ async fn test_doc_options_lossless_image_compression() {
 
 #[tokio::test]
 async fn test_doc_options_reduce_image_resolution() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.reduce_image_resolution = Some(true);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        reduce_image_resolution: Some(true),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -715,9 +879,12 @@ async fn test_doc_options_reduce_image_resolution() {
 
 #[tokio::test]
 async fn test_doc_options_pdfa() {
-    let client = Client::new("http://localhost:3000");
-    let mut options = DocumentOptions::default();
-    options.pdfa = Some(PDFFormat::A1b);
+    let client = Client::new(BASE_URL);
+
+    let options = DocumentOptions {
+        pdfa: Some(PDFFormat::A1b),
+        ..Default::default()
+    };
 
     let _pdf_content = client
         .pdf_from_doc("example.docx", DOCX_CONTENT.to_vec(), options)
@@ -727,7 +894,7 @@ async fn test_doc_options_pdfa() {
 
 #[tokio::test]
 async fn test_pdf_metadata() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
     let options = DocumentOptions::default();
 
     // Create the PDF
@@ -762,13 +929,13 @@ async fn test_pdf_metadata() {
 
 #[tokio::test]
 pub async fn test_health_check() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
     let _health = client.health_check().await.unwrap();
 }
 
 #[tokio::test]
 pub async fn test_version_string() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
     let version = client.version().await.unwrap();
 
     // It should start with 8.
@@ -777,6 +944,6 @@ pub async fn test_version_string() {
 
 #[tokio::test]
 pub async fn test_metrics() {
-    let client = Client::new("http://localhost:3000");
+    let client = Client::new(BASE_URL);
     let _metrics = client.metrics().await.unwrap();
 }
